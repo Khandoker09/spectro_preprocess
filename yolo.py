@@ -4,16 +4,25 @@ import tifffile as tiff
 from PIL import Image
 import matplotlib.pyplot as plt
 import torch
+import urllib.request
 from io import BytesIO
 
-# Function to load YOLOv5 model
-@st.cache_resource
+# Function to download YOLOv5 model from the provided URL
+def download_yolov5_model(model_url, model_path):
+    urllib.request.urlretrieve(model_url, model_path)
+    st.write(f"Model downloaded successfully to {model_path}")
+
+# Function to load the YOLOv5 model
 def load_yolo_model():
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+    model_url = "https://raw.githubusercontent.com/Khandoker09/spectro_preprocess/main/yolov5s.pt"  # URL to raw model file
+    model_path = "yolov5s.pt"  # Local path to save the model
+    download_yolov5_model(model_url, model_path)  # Download the model
+    model = torch.load(model_path)  # Load the model
+    model.eval()  # Set the model to evaluation mode
     return model
 
 # Streamlit app
-st.title("Spectral Image Preprocessing and Detection of Area of Interest")
+st.title("Spectral image preprocess and detect the area of interest")
 
 # Sidebar for upload and download buttons
 with st.sidebar:
@@ -45,11 +54,13 @@ if high_res_file and low_res_file:
         band_index = np.where(wavelengths == band_slider)[0][0]
         selected_band_image = spectral_image[:, :, band_index]
 
-        # Load YOLOv5 model
+        # Load the YOLOv5 model
         model = load_yolo_model()
+
+        # Perform object detection with the high-resolution image
         results = model(high_res_image_np)
 
-        # Extract coordinates of the detected object
+        # Extract coordinates of the detected objects
         if len(results.xyxy[0]) > 0:
             st.write("Detected objects in the high-resolution image:")
             
@@ -63,10 +74,10 @@ if high_res_file and low_res_file:
             ax.set_title("Detected Objects in High-Resolution Image")
             st.pyplot(fig)
 
-            # Assuming the first detected object is the area of interest (e.g., a pot)
+            # Assuming the first detected object is the pot
             x1, y1, x2, y2, conf, cls = results.xyxy[0][0].cpu().numpy()
             x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-            st.write(f"Coordinates of the detected object: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
+            st.write(f"Coordinates of the detected pot: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
 
             # Reduce the size of the bounding box further by 80 pixels on each side
             reduction = 80
