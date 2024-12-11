@@ -4,42 +4,13 @@ import tifffile as tiff
 from PIL import Image
 import matplotlib.pyplot as plt
 import torch
-import requests
-import os
 from io import BytesIO
 
-# Function to download YOLOv5 model from GitHub URL if not already available
+# Function to load YOLOv5 model
 @st.cache_resource
-
-
-# Function to load YOLOv5 model from the local path or GitHub
 def load_yolo_model():
-    model_url = "https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt"  # URL to YOLOv5 model
-    model_path = "yolov5s.pt"
-
-    # Download model if not already downloaded
-    if not os.path.exists(model_path):
-        download_model(model_url, model_path)
-
-    # Load the YOLOv5 model
-    # Load weights only to avoid executing arbitrary code (security concern)
-    model = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)  # Weights only
-    model.eval()  # Set model to evaluation mode
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     return model
-
-def download_model(model_url, save_path):
-    import requests
-    response = requests.get(model_url)
-    if response.status_code == 200:
-        with open(save_path, 'wb') as file:
-            file.write(response.content)
-        print(f"Model downloaded and saved to {save_path}")
-    else:
-        raise Exception(f"Failed to download model. HTTP Status code: {response.status_code}")
-
-# Example: Loading the YOLOv5 model and using it
-model = load_yolo_model()
-
 
 # Streamlit app
 st.title("Spectral image preprocess and detect the area of interest")
@@ -75,7 +46,7 @@ if high_res_file and low_res_file:
         selected_band_image = spectral_image[:, :, band_index]
 
         # YOLO object detection
-        model = load_yolo_model()  # Load the model from local path
+        model = load_yolo_model()
         results = model(high_res_image_np)
 
         # Extract coordinates of the detected pot
