@@ -9,7 +9,8 @@ from io import BytesIO
 # Function to load YOLOv5 model
 @st.cache_resource
 def load_yolo_model():
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, trust_repo=True)
+
     return model
 
 # Streamlit app
