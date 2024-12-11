@@ -10,7 +10,7 @@ from io import BytesIO
 # Function to load YOLOv5 model
 def load_yolov5_model():
     # Load the YOLOv5 model (make sure to use your model's file path)
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='/yolov5s.pt')  # Adjust the path as needed
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5s.pt')  # Adjust the path as needed
     return model
 
 
