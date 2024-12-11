@@ -1,6 +1,6 @@
 streamlit==1.22.0
 numpy==1.24.2
-tifffile==2024.5.19
+tifffile==2024.9.20
 Pillow==9.5.0
 matplotlib==3.8.0
 torch==2.1.0
