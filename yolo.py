@@ -10,28 +10,36 @@ from io import BytesIO
 
 # Function to download YOLOv5 model from GitHub URL if not already available
 @st.cache_resource
+
+
+# Function to load YOLOv5 model from the local path or GitHub
 def load_yolo_model():
-    model_url = "https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt"  # Update with your model URL
+    model_url = "https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt"  # URL to YOLOv5 model
     model_path = "yolov5s.pt"
 
-    # If the model is not already downloaded, download it
+    # Download model if not already downloaded
     if not os.path.exists(model_path):
         download_model(model_url, model_path)
 
     # Load the YOLOv5 model
-    model = torch.load(model_path)
-    model.eval()  # Set the model to evaluation mode
+    # Load weights only to avoid executing arbitrary code (security concern)
+    model = torch.load(model_path, map_location=torch.device('cpu'), weights_only=True)  # Weights only
+    model.eval()  # Set model to evaluation mode
     return model
 
-# Function to download the model from the given URL
 def download_model(model_url, save_path):
+    import requests
     response = requests.get(model_url)
     if response.status_code == 200:
         with open(save_path, 'wb') as file:
             file.write(response.content)
-        print(f"Model downloaded successfully and saved to {save_path}")
+        print(f"Model downloaded and saved to {save_path}")
     else:
         raise Exception(f"Failed to download model. HTTP Status code: {response.status_code}")
+
+# Example: Loading the YOLOv5 model and using it
+model = load_yolo_model()
+
 
 # Streamlit app
 st.title("Spectral image preprocess and detect the area of interest")
