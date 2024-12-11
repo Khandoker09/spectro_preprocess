@@ -9,11 +9,11 @@ from io import BytesIO
 # Function to load YOLOv5 model
 @st.cache_resource
 def load_yolo_model():
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s.pt', pretrained=True)
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
     return model
 
 # Streamlit app
-st.title("Spectral image preprocess and detect the area of interest")
+st.title("Spectral Image Preprocessing and Detection of Area of Interest")
 
 # Sidebar for upload and download buttons
 with st.sidebar:
@@ -45,11 +45,11 @@ if high_res_file and low_res_file:
         band_index = np.where(wavelengths == band_slider)[0][0]
         selected_band_image = spectral_image[:, :, band_index]
 
-        # YOLO object detection
+        # Load YOLOv5 model
         model = load_yolo_model()
         results = model(high_res_image_np)
 
-        # Extract coordinates of the detected pot
+        # Extract coordinates of the detected object
         if len(results.xyxy[0]) > 0:
             st.write("Detected objects in the high-resolution image:")
             
@@ -63,10 +63,10 @@ if high_res_file and low_res_file:
             ax.set_title("Detected Objects in High-Resolution Image")
             st.pyplot(fig)
 
-            # Assuming the first detected object is the pot
+            # Assuming the first detected object is the area of interest (e.g., a pot)
             x1, y1, x2, y2, conf, cls = results.xyxy[0][0].cpu().numpy()
             x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-            st.write(f"Coordinates of the detected pot: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
+            st.write(f"Coordinates of the detected object: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
 
             # Reduce the size of the bounding box further by 80 pixels on each side
             reduction = 80
