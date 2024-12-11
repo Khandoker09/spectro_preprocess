@@ -8,7 +8,7 @@ import requests
 import os
 from io import BytesIO
 
-# Function to download and load YOLOv5 model from GitHub URL
+# Function to download YOLOv5 model from GitHub URL if not already available
 @st.cache_resource
 def load_yolo_model():
     model_url = "https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt"  # Update with your model URL
@@ -18,7 +18,7 @@ def load_yolo_model():
     if not os.path.exists(model_path):
         download_model(model_url, model_path)
 
-    # Load the model from the local file
+    # Load the YOLOv5 model
     model = torch.load(model_path)
     model.eval()  # Set the model to evaluation mode
     return model
@@ -67,7 +67,7 @@ if high_res_file and low_res_file:
         selected_band_image = spectral_image[:, :, band_index]
 
         # YOLO object detection
-        model = load_yolo_model()
+        model = load_yolo_model()  # Load the model from local path
         results = model(high_res_image_np)
 
         # Extract coordinates of the detected pot
